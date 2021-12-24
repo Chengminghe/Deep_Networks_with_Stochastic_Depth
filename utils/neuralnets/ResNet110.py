@@ -1,4 +1,4 @@
-from utils.resnetblock import ResNetIdentity,ResNetDownsampling
+from utils.resnetblock import TwoLayerBlock
 from tensorflow.keras.layers import Dense, Conv2D, GlobalAveragePooling2D,BatchNormalization,Activation, Add,Flatten,ZeroPadding2D,MaxPooling2D,AveragePooling2D
 from tensorflow.keras import Model
 from tensorflow.keras.regularizers import l2
@@ -11,13 +11,13 @@ class ResNet110(Model):
 		self.bn_0 = BatchNormalization()
 		self.ac_0 = Activation(relu)
 		self.resblocks = dict()
-		self.resblocks['res_1_1'] = ResNetIdentity((3,3),16)
-		self.resblocks['res_2_1'] = ResNetDownsampling((3,3),32)
-		self.resblocks['res_3_1'] = ResNetDownsampling((3,3),64)
+		self.resblocks['res_1_1'] = TwoLayerBlock((3,3),16)
+		self.resblocks['res_2_1'] = TwoLayerBlock((3,3),32,down_sampling = True)
+		self.resblocks['res_3_1'] = TwoLayerBlock((3,3),64,down_sampling = True)
 		for i in range(17):
-			self.resblocks['res_1_%d'%(i+2)] = ResNetIdentity((3,3),16)
-			self.resblocks['res_2_%d'%(i+2)] = ResNetIdentity((3,3),32)
-			self.resblocks['res_3_%d'%(i+2)] = ResNetIdentity((3,3),64)
+			self.resblocks['res_1_%d'%(i+2)] = TwoLayerBlock((3,3),16)
+			self.resblocks['res_2_%d'%(i+2)] = TwoLayerBlock((3,3),32)
+			self.resblocks['res_3_%d'%(i+2)] = TwoLayerBlock((3,3),64)
 		self.avg = GlobalAveragePooling2D()
 		self.fc = Dense(num_class,activation='softmax', kernel_initializer='he_normal'
              ,kernel_regularizer=l2(1e-4),bias_regularizer=l2(1e-4))
